@@ -4,10 +4,15 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour {
 
+    //Game data
+    Rigidbody rigidBody;
+
 	// Use this for initialization
 	void Start()
     {
-		
+
+        //Não temos que dizer como vamos buscar o rigidbod, apenas que o temos que ir buscar
+        rigidBody = GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame
@@ -34,6 +39,9 @@ public class Rocket : MonoBehaviour {
         if(Input.GetKey(KeyCode.Space)) //Thrust == impulso
         {
             print("Thrust Space");
+
+            rigidBody.AddRelativeForce(Vector3.up);
+
         }
 
     }
