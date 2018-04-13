@@ -30,10 +30,13 @@ public class Rocket : MonoBehaviour {
         if(Input.GetKey(KeyCode.A))
         {
             print("Rotate A");
+            transform.Rotate(Vector3.forward);
         }
         else if(Input.GetKey(KeyCode.D))
         {
             print("Rotate D");
+
+            transform.Rotate(-Vector3.forward);
         }
 
         if(Input.GetKey(KeyCode.Space)) //Thrust == impulso
