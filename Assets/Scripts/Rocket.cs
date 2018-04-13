@@ -6,6 +6,7 @@ public class Rocket : MonoBehaviour {
 
     //Game data
     Rigidbody rigidBody;
+    AudioSource audioSource;
 
 	// Use this for initialization
 	void Start()
@@ -13,7 +14,9 @@ public class Rocket : MonoBehaviour {
 
         //Não temos que dizer como vamos buscar o rigidbod, apenas que o temos que ir buscar
         rigidBody = GetComponent<Rigidbody>();
-	}
+        audioSource = GetComponent<AudioSource>();
+
+    }
 	
 	// Update is called once per frame
 	void Update()
@@ -29,21 +32,29 @@ public class Rocket : MonoBehaviour {
 
         if(Input.GetKey(KeyCode.A))
         {
-            print("Rotate A");
             transform.Rotate(Vector3.forward);
         }
         else if(Input.GetKey(KeyCode.D))
         {
-            print("Rotate D");
-
             transform.Rotate(-Vector3.forward);
         }
 
-        if(Input.GetKey(KeyCode.Space)) //Thrust == impulso
+        if (Input.GetKey(KeyCode.Space)) //Thrust == impulso
         {
-            print("Thrust Space");
 
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
             rigidBody.AddRelativeForce(Vector3.up);
+
+        }
+        else
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
 
         }
 
