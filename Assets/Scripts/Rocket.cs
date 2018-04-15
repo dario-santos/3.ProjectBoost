@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
@@ -20,6 +21,7 @@ public class Rocket : MonoBehaviour {
     //Game data
     Rigidbody rigidBody;
     AudioSource audioSource;
+    bool canColllide = true;
 
     enum State {Alive, Dying, Trascending };
     State state = State.Alive;
@@ -32,26 +34,44 @@ public class Rocket : MonoBehaviour {
         //Não temos que dizer como vamos buscar o rigidbod, apenas que o temos que ir buscar
         rigidBody = GetComponent<Rigidbody>();
         audioSource = GetComponent<AudioSource>();
+       
 
     }
-	
 
-	// Update is called once per frame
-	void Update()
+
+    // Update is called once per frame
+    void Update()
     {
         //ToDo: Parar som quando morre
         if (state == State.Alive)
         {
-            RespondingToThrutInput();
-            RespondingToRotateInput();
+            RespondToThrutInput();
+            RespondToRotateInput();
+        }
+
+        if (Debug.isDebugBuild)
+        {
+            RespondToDebugKeys();
         }
         
 	}
 
+    private void RespondToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            canColllide = !canColllide;
+        }
+        else if (Input.GetKeyDown(KeyCode.L))
+        {
+
+            LoadNextScene();
+        }
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(state != State.Alive)
+        if(state != State.Alive || !canColllide)
             return;
 
         switch(collision.gameObject.tag)
@@ -102,7 +122,14 @@ public class Rocket : MonoBehaviour {
 
         winParticles.Stop();
 
-        SceneManager.LoadScene(1);
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+
+        if ((currentScene + 1) < SceneManager.sceneCountInBuildSettings && (currentScene + 1) >= 0) //Se a próxima scene existir
+            SceneManager.LoadScene(currentScene + 1);
+        else //Se não existir próxima volta ao início
+            SceneManager.LoadScene(0);
+
+
         state = State.Alive;
 
     }
@@ -116,7 +143,7 @@ public class Rocket : MonoBehaviour {
         state = State.Alive;
     }
 
-    private void RespondingToThrutInput()
+    private void RespondToThrutInput()
     {
 
         if (Input.GetKey(KeyCode.Space)) //Thrust == impulso
@@ -146,7 +173,7 @@ public class Rocket : MonoBehaviour {
 
 
     //Process Input
-    private void RespondingToRotateInput()
+    private void RespondToRotateInput()
     {
         //Pode rodar e impulsionar ao mesmo tempo
         rigidBody.freezeRotation = true; //Take manual control of rotation
