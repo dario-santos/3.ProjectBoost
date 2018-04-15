@@ -666,8 +666,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99a41183ecf89fb4282d846b504bd569, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rcsRotation: 250
-  rcsThrut: 50
+  rcsRotation: 300
+  rcsThrut: 2000
+  levelLoadDelay: 2
   m_mainEngine: {fileID: 8300000, guid: 608ebb435c3e20b489b28fba9a7566f6, type: 3}
   m_dying: {fileID: 8300000, guid: 829972c82f03b0a47b2b156808bcd953, type: 3}
   m_win: {fileID: 8300000, guid: f207a45b2d56ac34898284fe38fe8a25, type: 3}

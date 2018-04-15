@@ -7,6 +7,7 @@ public class Rocket : MonoBehaviour {
 
     [SerializeField] float rcsRotation = 250f;
     [SerializeField] float rcsThrut = 50f;
+    [SerializeField] float levelLoadDelay = 2f;
 
     [SerializeField] AudioClip m_mainEngine;
     [SerializeField] AudioClip m_dying;
@@ -76,9 +77,10 @@ public class Rocket : MonoBehaviour {
         audioSource.PlayOneShot(m_win);
 
         winParticles.Play();
+        mainEngineParticles.Stop();
 
         state = State.Trascending;
-        Invoke("LoadNextScene", 1f); //Carregar nível 2
+        Invoke("LoadNextScene", levelLoadDelay); //Carregar nível 2
     }
 
 
@@ -88,8 +90,10 @@ public class Rocket : MonoBehaviour {
         audioSource.PlayOneShot(m_dying);
 
         dyingParticles.Play();
+        mainEngineParticles.Stop();
+
         state = State.Dying;
-        Invoke("LoadFirstScene", 1f);//Perma death
+        Invoke("LoadFirstScene", levelLoadDelay); //Perma death
     }
 
 
@@ -131,7 +135,7 @@ public class Rocket : MonoBehaviour {
 
     private void ApplyThrut()
     {
-        rigidBody.AddRelativeForce(Vector3.up * rcsThrut);
+        rigidBody.AddRelativeForce(Vector3.up * rcsThrut * Time.deltaTime);
 
         if (!audioSource.isPlaying)
         {
