@@ -21,10 +21,10 @@ public class Rocket : MonoBehaviour {
     //Game data
     Rigidbody rigidBody;
     AudioSource audioSource;
-    bool canColllide = true;
 
-    enum State {Alive, Dying, Trascending };
-    State state = State.Alive;
+
+    bool canColllide = true;
+    bool isTransitioning = false;
 
 
 	// Use this for initialization
@@ -43,9 +43,9 @@ public class Rocket : MonoBehaviour {
     void Update()
     {
         //ToDo: Parar som quando morre
-        if (state == State.Alive)
+        if (!isTransitioning)
         {
-            RespondToThrutInput();
+            RespondToThrustInput();
             RespondToRotateInput();
         }
 
@@ -65,13 +65,13 @@ public class Rocket : MonoBehaviour {
         else if (Input.GetKeyDown(KeyCode.L))
         {
 
-            LoadNextScene();
+            LoadNextLevel();
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if(state != State.Alive || !canColllide)
+        if(isTransitioning || !canColllide)
             return;
 
         switch(collision.gameObject.tag)
@@ -99,7 +99,7 @@ public class Rocket : MonoBehaviour {
         winParticles.Play();
         mainEngineParticles.Stop();
 
-        state = State.Trascending;
+        isTransitioning = true;
         Invoke("LoadNextScene", levelLoadDelay); //Carregar nível 2
     }
 
@@ -112,55 +112,61 @@ public class Rocket : MonoBehaviour {
         dyingParticles.Play();
         mainEngineParticles.Stop();
 
-        state = State.Dying;
+        isTransitioning = true;
         Invoke("LoadFirstScene", levelLoadDelay); //Perma death
     }
 
 
-    private void LoadNextScene()
+    private void LoadNextLevel()
     {
-
         winParticles.Stop();
 
-        int currentScene = SceneManager.GetActiveScene().buildIndex;
+        LoadNextScene();
 
-        if ((currentScene + 1) < SceneManager.sceneCountInBuildSettings && (currentScene + 1) >= 0) //Se a próxima scene existir
-            SceneManager.LoadScene(currentScene + 1);
-        else //Se não existir próxima volta ao início
-            SceneManager.LoadScene(0);
-
-
-        state = State.Alive;
-
+        isTransitioning = false;
     }
 
+    private void LoadNextScene()
+    {
+        int currentScene = SceneManager.GetActiveScene().buildIndex;
+
+        int nextScene = (currentScene + 1) % SceneManager.sceneCountInBuildSettings;
+        print(nextScene);
+        SceneManager.LoadScene(nextScene);
+        
+    }
 
     private void LoadFirstScene()
     {
         dyingParticles.Stop();
 
         SceneManager.LoadScene(0);
-        state = State.Alive;
+        isTransitioning = false;
     }
 
-    private void RespondToThrutInput()
+    private void RespondToThrustInput()
     {
 
         if (Input.GetKey(KeyCode.Space)) //Thrust == impulso
         {
-            ApplyThrut();
+            ApplyThrust();
         }
         else
         {
             if (audioSource.isPlaying)
             {
-                audioSource.Stop();
-                mainEngineParticles.Stop();
+                StopThrust();
             }
         }
     }
 
-    private void ApplyThrut()
+    private void StopThrust()
+    {
+        audioSource.Stop();
+        mainEngineParticles.Stop();
+    }
+
+    private void ApplyThrust()
     {
         rigidBody.AddRelativeForce(Vector3.up * rcsThrut * Time.deltaTime);
 
@@ -176,7 +182,7 @@ public class Rocket : MonoBehaviour {
     private void RespondToRotateInput()
     {
         //Pode rodar e impulsionar ao mesmo tempo
-        rigidBody.freezeRotation = true; //Take manual control of rotation
+        rigidBody.angularVelocity = Vector3.zero;
 
         float rotationThisFrame = rcsRotation * Time.deltaTime;
         if(Input.GetKey(KeyCode.A))
@@ -187,9 +193,6 @@ public class Rocket : MonoBehaviour {
         {
             transform.Rotate(-Vector3.forward * rotationThisFrame);
         }
-
-        rigidBody.freezeRotation = false; //Resume physics control
-
 
     }
 }
